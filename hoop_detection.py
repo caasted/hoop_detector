@@ -4,13 +4,16 @@ import rospy
 
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
-from geometry_msgs.msg import Point, Pose
+from geometry_msgs.msg import Point, Pose, Quaternion
+from tf.transformations import quaternion_from_euler
 
 bridge = CvBridge()
 hoop_pose = Pose()
 
 def receive_image(image_data):
     global hoop_pose
+    green_center = Point(0, 0, 0)
+    green_orientation = Quaternion(0, 0, 0, 0)
 
     cv2_image = bridge.imgmsg_to_cv2(image_data, desired_encoding="passthrough")
 
@@ -87,17 +90,19 @@ def receive_image(image_data):
             rel_y = distance_to_hoop * np.sin(np.pi * angle_to_hoop / 180.)
             green_center = Point(rel_x, rel_y, 0)
             print(green_center)
-        else:
-            green_center = Point(0, 0, 0)
-    else:
-        green_center = Point(0, 0, 0)
+            temp_orientation = quaternion_from_euler(0, 0, hoop_orientation)
+            green_orientation.x = temp_orientation[0]
+            green_orientation.y = temp_orientation[1]
+            green_orientation.z = temp_orientation[2]
+            green_orientation.w = temp_orientation[3]
+            print(green_orientation)
 
-    green_center = Point()
     cv2.imshow("Mask", green_mask)
     cv2.waitKey(2)
 
     hoop_pose = Pose()
     hoop_pose.position = green_center
+    hoop_pose.orientation = green_orientation
     return
 
 def pub_sub_init():
