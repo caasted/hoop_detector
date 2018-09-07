@@ -83,7 +83,12 @@ def receive_image(image_data):
                        hough_circle[0][2], (255, 255, 255), 0)
             print(distance_to_hoop, angle_to_hoop, hoop_orientation)
 
-        green_center = Point(0, 0, 0)
+            rel_x = distance_to_hoop * np.cos(np.pi * angle_to_hoop / 180.)
+            rel_y = distance_to_hoop * np.sin(np.pi * angle_to_hoop / 180.)
+            green_center = Point(rel_x, rel_y, 0)
+            print(green_center)
+        else:
+            green_center = Point(0, 0, 0)
     else:
         green_center = Point(0, 0, 0)
 
